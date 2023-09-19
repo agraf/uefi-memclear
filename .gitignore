@@ -30,6 +30,7 @@
 
 # Executables
 *.exe
+*.efi
 *.out
 *.app
 *.i*86
@@ -50,3 +51,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Hidden files
+.*
