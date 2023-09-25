@@ -2,6 +2,7 @@
  * UEFI Memory cleaner
  */
 
+#include <stdint.h>
 #include <efi.h>
 #include <efilib.h>
 
