@@ -18,11 +18,12 @@ static SIMPLE_TEXT_OUTPUT_INTERFACE *gErr;
 struct MapEntry  {
 	UINTN Start;
 	UINTN End;
-	int Type;
 };
 
 struct MapEntry CleanedMaps[MAX_MAPS];
 UINTN NumCleanedMap = 0;
+struct MapEntry UncleanedMaps[MAX_MAPS];
+UINTN NumUncleanedMap = 0;
 
 /* Debug function to print a hex value */
 static void debug_hex(UINT16 *str, uint64_t val)
@@ -163,6 +164,9 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 				debug_hex(L"Clearable ", start);
 			}
 			else {
+				UncleanedMaps[NumUncleanedMap].Start = start;
+				UncleanedMaps[NumUncleanedMap].End = end;
+				++NumUncleanedMap;
 				debug_hex(L"Uncleaned ", start);
 				ProtectedMemSize += (end - start);
 			}
@@ -211,16 +215,14 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 
 #if 1
 	// MyData is the data you want to store
-	UINT8 MyData[8];
-	MyData[0]= 1;
-
-	UINTN DataSize = sizeof(MyData);
+	//UINT64 MyData[] = {0x0807060504030201ULL, 0x0F0E0D0C0B0A0908ULL};
+	UINTN DataSize = sizeof(struct MapEntry) * NumUncleanedMap;
 	r = system_table->RuntimeServices->SetVariable(
 			VariableName,
 			&MyVariableGuid,
 			EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
 			DataSize,
-			MyData
+			UncleanedMaps
 			);
 	if (EFI_ERROR(r)) {
 		debug_hex(L"Failed to set variable ", r);
