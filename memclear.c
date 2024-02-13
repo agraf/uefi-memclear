@@ -55,8 +55,8 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 	UINTN rsp;
 	UINTN rip;
 
-	//EFI_GUID MyVariableGuid = {0x12345678, 0x1234, 0x1234, {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0}};
-	//CHAR16 *VariableName = L"MyVariableName";
+	EFI_GUID MyVariableGuid = {0x12345678, 0x1234, 0x1234, {0x12, 0x34, 0x56, 0x78, 0x9a, 0xbc, 0xde, 0xf0}};
+	CHAR16 *VariableName = L"MyVariableName";
 
 	/* Remember important global variables */
 	gBS = system_table->BootServices;
@@ -184,26 +184,6 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 	// "memmap" to do so through the OS command line
 	//
 
-#if 0
-	// MyData is the data you want to store
-	UINT8 MyData[] = {1,2,3,4,5,6};
-
-	UINTN DataSize = sizeof(MyData);
-	r = system_table->RuntimeServices->SetVariable(
-			VariableName,
-			&MyVariableGuid,
-			EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
-			DataSize,
-			MyData
-			);
-	if (EFI_ERROR(r)) {
-		debug_hex(L"Failed to set variable ", r);
-		goto err;
-	}
-	else {
-		debug_hex(L"Set the variable ", r);
-	}
-#endif
 
 #if 0
 	//
@@ -229,7 +209,30 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 	}
 	gErr->OutputString(gErr, L"Successfully cleared memory\n");
 
+#if 1
+	// MyData is the data you want to store
+	UINT8 MyData[8];
+	MyData[0]= 1;
 
+	UINTN DataSize = sizeof(MyData);
+	r = system_table->RuntimeServices->SetVariable(
+			VariableName,
+			&MyVariableGuid,
+			EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS | EFI_VARIABLE_RUNTIME_ACCESS,
+			DataSize,
+			MyData
+			);
+	if (EFI_ERROR(r)) {
+		debug_hex(L"Failed to set variable ", r);
+		goto err;
+	}
+	else {
+		debug_hex(L"Set the variable, size ", DataSize);
+	}
+#endif
+
+	// NOTE: this must be an error so the next boot entry loads
+	// Otherwise, the booting process just stalls
 	return EFI_BUFFER_TOO_SMALL;
 
 err:
