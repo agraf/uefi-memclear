@@ -7,6 +7,7 @@
 
 #define PAGE_SIZE 4096
 #define MAX_MAPS 100
+#define ENABLE_SAFE_CLEAN 1
 
 static const int verbose = 1;
 
@@ -122,6 +123,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 		else {
 
 			int Clearable = 0;
+#ifndef ENABLE_SAFE_CLEAN
 			switch (Map->Type) {
 				// Becareful: The following mapped regions will be cleared
 				case EfiACPIReclaimMemory:
@@ -152,7 +154,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 					Clearable = 0;
 					break;
 			}
-
+#endif
 
 			if (Clearable) {
 				CleanedMaps[NumCleanedMap].Start = start;
@@ -228,7 +230,7 @@ EFI_STATUS efi_main(EFI_HANDLE image_handle, EFI_SYSTEM_TABLE* system_table)
 	gErr->OutputString(gErr, L"Successfully cleared memory\n");
 
 
-	return EFI_SUCCESS;
+	return EFI_BUFFER_TOO_SMALL;
 
 err:
 	gErr->OutputString(gErr, L"Failed to clear memory\n");
